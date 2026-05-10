@@ -157,11 +157,3 @@ pending → accepted → in_progress → completed
 | comment | TEXT | Comentário opcional |
 
 ---
-
-## Preparação para Sprints Futuras
-
-**Sprint 2 (MOM):** Os controllers contêm comentários `// Sprint 2 hook` nos pontos de publicação de eventos (criação de solicitação, mudança de status). Basta implementar o producer do RabbitMQ nesses hooks.
-
-**Sprint 3 (Flutter Cliente):** Todos os endpoints já retornam dados formatados para consumo direto no app Flutter, com paginação e includes necessários.
-
-**Sprint 4 (Flutter Prestador + Pagamento):** Os campos `verification_token`, `payment_method` e `payment_status` já existem no schema, prontos para ativação.

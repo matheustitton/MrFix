@@ -1,5 +1,5 @@
-# MrFix — Backend REST API
-> Sprint 1 | LDAMD - PUC Minas | 2026/1
+# MrFix
+> LDAMD - PUC Minas | 2026/1
 
 ## Sobre o Projeto
 

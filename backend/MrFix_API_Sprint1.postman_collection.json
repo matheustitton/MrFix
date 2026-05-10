@@ -1,0 +1,421 @@
+{
+  "info": {
+    "name": "MrFix API - Sprint 1",
+    "_postman_id": "mrfix-sprint1-2026",
+    "description": "Coleção completa de endpoints da API MrFix para a Sprint 1 do projeto LDAMD - PUC Minas 2026/1.\n\n**Como usar:**\n1. Importe esta coleção no Postman\n2. Configure a variável `baseUrl` para `http://localhost:3000/api`\n3. Execute `POST /auth/login` com um dos usuários de teste para obter o token\n4. O token é salvo automaticamente na variável `token`\n\n**Usuários de teste (senha: senha123):**\n- Cliente: ana@mrfix.com\n- Prestadora: julia@mrfix.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "requestId", "value": "", "type": "string" },
+    { "key": "providerId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register - Cliente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Silva\",\n  \"email\": \"maria@email.com\",\n  \"password\": \"senha123\",\n  \"role\": \"client\",\n  \"gender\": \"female\",\n  \"phone\": \"31988887777\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"Usuário criado com sucesso.\",\n  \"user\": {\n    \"id\": \"uuid-aqui\",\n    \"name\": \"Maria Silva\",\n    \"email\": \"maria@email.com\",\n    \"role\": \"client\",\n    \"gender\": \"female\"\n  },\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register - Prestador",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Patricia Eletricista\",\n  \"email\": \"patricia@email.com\",\n  \"password\": \"senha123\",\n  \"role\": \"provider\",\n  \"gender\": \"female\",\n  \"phone\": \"31977776666\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  pm.collectionVariables.set('providerId', json.user.id);",
+                  "  console.log('Token saved:', json.token.substring(0,20) + '...');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ana@mrfix.com\",\n  \"password\": \"senha123\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Login realizado com sucesso.\",\n  \"user\": {\n    \"id\": \"uuid\",\n    \"name\": \"Ana Oliveira\",\n    \"role\": \"client\",\n    \"gender\": \"female\"\n  },\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "body": "{\n  \"error\": \"Credenciais inválidas.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Me (token required)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categorias",
+      "item": [
+        {
+          "name": "Listar Categorias",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": [\n    { \"id\": \"uuid\", \"name\": \"Eletricista\", \"description\": \"Instalações e reparos elétricos\", \"icon\": \"bolt\" },\n    { \"id\": \"uuid\", \"name\": \"Encanador\", \"description\": \"Serviços hidráulicos e encanamento\", \"icon\": \"water_drop\" }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Detalhe de Categoria",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/categories/:id", "host": ["{{baseUrl}}"], "path": ["categories", ":id"], "variable": [{ "key": "id", "value": "uuid-da-categoria" }] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Prestadores",
+      "item": [
+        {
+          "name": "Listar Prestadores (todos)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/providers?page=1&limit=10", "host": ["{{baseUrl}}"], "path": ["providers"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }] }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Prestadores - Filtro Gênero Feminino",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/providers?gender=female",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers"],
+              "query": [{ "key": "gender", "value": "female", "description": "Filtro de segurança: apenas prestadoras mulheres" }]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - Apenas mulheres",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"name\": \"Julia Santos\",\n      \"gender\": \"female\",\n      \"average_rating\": 4.8,\n      \"specialties\": [\n        { \"category\": { \"name\": \"Eletricista\" }, \"average_price\": 150.00 }\n      ]\n    }\n  ],\n  \"pagination\": { \"total\": 1, \"page\": 1, \"limit\": 10, \"pages\": 1 }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Listar Prestadores - Filtro por Categoria",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/providers?category_id=uuid-da-categoria",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers"],
+              "query": [{ "key": "category_id", "value": "uuid-da-categoria" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Prestadores - Filtro Gênero + Categoria",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/providers?gender=female&category_id=uuid-da-categoria",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers"],
+              "query": [
+                { "key": "gender", "value": "female" },
+                { "key": "category_id", "value": "uuid-da-categoria" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil do Prestador",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/providers/:id", "host": ["{{baseUrl}}"], "path": ["providers", ":id"], "variable": [{ "key": "id", "value": "{{providerId}}" }] }
+          },
+          "response": []
+        },
+        {
+          "name": "Adicionar Especialidade (Login como prestador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/providers/specialties", "host": ["{{baseUrl}}"], "path": ["providers", "specialties"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"uuid-da-categoria\",\n  \"average_price\": 180.00,\n  \"experience_years\": 5,\n  \"bio\": \"Especialista com 5 anos de experiência em instalações residenciais.\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Minhas Especialidades (prestador)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/providers/me/specialties", "host": ["{{baseUrl}}"], "path": ["providers", "me", "specialties"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Solicitações de Serviço",
+      "item": [
+        {
+          "name": "Criar Solicitação (cliente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.id) {",
+                  "  pm.collectionVariables.set('requestId', json.data.id);",
+                  "  console.log('Request ID saved:', json.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/service-requests", "host": ["{{baseUrl}}"], "path": ["service-requests"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"uuid-da-categoria\",\n  \"title\": \"Instalação de tomadas na sala\",\n  \"description\": \"Preciso instalar 3 tomadas novas na sala e 1 no quarto.\",\n  \"address\": \"Rua das Flores, 123 - Belo Horizonte, MG\",\n  \"latitude\": -19.9167,\n  \"longitude\": -43.9345,\n  \"preferred_gender\": \"female\",\n  \"scheduled_at\": \"2026-05-20T09:00:00.000Z\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"Solicitação criada com sucesso.\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"title\": \"Instalação de tomadas na sala\",\n    \"status\": \"pending\",\n    \"preferred_gender\": \"female\",\n    \"client\": { \"id\": \"uuid\", \"name\": \"Ana Oliveira\" },\n    \"category\": { \"name\": \"Eletricista\" }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Listar Minhas Solicitações",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/service-requests?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["service-requests"],
+              "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Solicitações - Filtro por Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/service-requests?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["service-requests"],
+              "query": [{ "key": "status", "value": "pending" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detalhe de Solicitação",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/service-requests/{{requestId}}", "host": ["{{baseUrl}}"], "path": ["service-requests", "{{requestId}}"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Aceitar Solicitação (prestador)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/service-requests/{{requestId}}/status", "host": ["{{baseUrl}}"], "path": ["service-requests", "{{requestId}}", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"accepted\"\n}" }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Status atualizado para \\\"accepted\\\".\",\n  \"data\": { \"id\": \"uuid\", \"status\": \"accepted\", \"provider\": { \"name\": \"Julia Santos\" } }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Iniciar Serviço (prestador)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/service-requests/{{requestId}}/status", "host": ["{{baseUrl}}"], "path": ["service-requests", "{{requestId}}", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"in_progress\"\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Concluir Serviço (prestador)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/service-requests/{{requestId}}/status", "host": ["{{baseUrl}}"], "path": ["service-requests", "{{requestId}}", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"completed\"\n}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar Solicitação",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/service-requests/{{requestId}}/status", "host": ["{{baseUrl}}"], "path": ["service-requests", "{{requestId}}", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"cancelled\",\n  \"cancellation_reason\": \"Precisei remarcar para outra data.\"\n}" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Avaliações",
+      "item": [
+        {
+          "name": "Avaliar após serviço concluído",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/ratings", "host": ["{{baseUrl}}"], "path": ["ratings"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_request_id\": \"{{requestId}}\",\n  \"score\": 5,\n  \"comment\": \"Profissional excelente, trabalho impecável e pontual!\"\n}"
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"Avaliação registrada com sucesso.\",\n  \"data\": { \"id\": \"uuid\", \"score\": 5, \"comment\": \"Profissional excelente!\" }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Ver Avaliações de um Usuário",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/ratings/user/:userId", "host": ["{{baseUrl}}"], "path": ["ratings", "user", ":userId"], "variable": [{ "key": "userId", "value": "{{providerId}}" }] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:3000/health", "host": ["http://localhost:3000"], "path": ["health"] }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"ok\",\n  \"app\": \"MrFix API\",\n  \"version\": \"1.0.0\",\n  \"timestamp\": \"2026-05-11T12:00:00.000Z\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

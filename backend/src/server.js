@@ -4,6 +4,8 @@ const cors = require('cors');
 
 const { sequelize } = require('./models');
 const seed = require('./utils/seeder');
+const { connect: connectRabbitMQ, disconnect: disconnectRabbitMQ } = require('./config/rabbitmq');
+const { startAllConsumers } = require('./messaging');
 
 const authRoutes = require('./routes/authRoutes');
 const serviceRequestRoutes = require('./routes/serviceRequestRoutes');
@@ -40,25 +42,49 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor.' });
 });
 
-// Start do servidor e bd
+// Start do servidor, bd e rabbit
 const start = async () => {
   try {
+    // Bd
     await sequelize.authenticate();
-    console.log('Database connected.');
-
-    await sequelize.sync({ alter: true });
-    console.log('Models synchronized.');
+    console.log('✅ Database connected.');
+    await sequelize.sync({ force: false });
+    console.log('✅ Models synchronized.');
 
     if (process.env.NODE_ENV !== 'test') {
       await seed();
     }
 
-    app.listen(PORT, () => {
-      console.log(`\n MrFix API running on http://localhost:${PORT}`);
-      console.log(`Health: http://localhost:${PORT}/health\n`);
+    // Rabbit — conexão e consumers
+    try {
+      await connectRabbitMQ();
+      await startAllConsumers();
+    } catch (momErr) {
+      console.warn('[MOM] ⚠️  RabbitMQ indisponível no startup — API REST funcionando sem MOM.');
+      console.warn('[MOM] Inicie o RabbitMQ e o servidor reconectará automaticamente.');
+    }
+
+    const server = app.listen(PORT, () => {
+      console.log(`\n🚀 MrFix API rodando em http://localhost:${PORT}`);
+      console.log(`📋 Health: http://localhost:${PORT}/health\n`);
     });
+
+    // Desligamento
+    const shutdown = async (signal) => {
+      console.log(`\n[Server] ${signal} recebido. Encerrando...`);
+      server.close(async () => {
+        await disconnectRabbitMQ();
+        await sequelize.close();
+        console.log('[Server] Encerrado.');
+        process.exit(0);
+      });
+    };
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+
   } catch (err) {
-    console.error('Failed to start server:', err);
+    console.error('❌ Falha ao iniciar servidor:', err);
     process.exit(1);
   }
 };

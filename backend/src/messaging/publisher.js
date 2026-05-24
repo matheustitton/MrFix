@@ -17,22 +17,22 @@ const { QUEUES, QUEUE_OPTIONS, PUBLISH_OPTIONS } = require('./queues');
  * @param {object} payload - Dados do evento (será serializado como JSON)
  */
 const publish = async (queue, payload) => {
-    try {
-        const ch = await getChannel();
-        await ch.assertQueue(queue, QUEUE_OPTIONS);
+  try {
+    const ch = await getChannel();
+    await ch.assertQueue(queue, QUEUE_OPTIONS);
 
-        const message = Buffer.from(JSON.stringify({
-            ...payload,
-            timestamp: new Date().toISOString(),
-        }));
+    const message = Buffer.from(JSON.stringify({
+      ...payload,
+      timestamp: new Date().toISOString(),
+    }));
 
-        ch.sendToQueue(queue, message, PUBLISH_OPTIONS);
+    ch.sendToQueue(queue, message, PUBLISH_OPTIONS);
 
-        console.log(`[Publisher] ✅ Evento publicado → ${queue}`, payload);
-    } catch (err) {
-      // Falha no MOM não deve derrubar a API REST
-        console.error(`[Publisher] ❌ Falha ao publicar em ${queue}:`, err.message);
-    }
+    console.log(`[Publisher] ✅ Evento publicado → ${queue}`, payload);
+  } catch (err) {
+    // Falha no MOM não deve derrubar a API REST
+    console.error(`[Publisher] ❌ Falha ao publicar em ${queue}:`, err.message);
+  }
 };
 
 // ─── Eventos de Domínio ────────────────────────────────────────────────────
@@ -55,17 +55,17 @@ const publish = async (queue, payload) => {
  * }
  */
 const publishRequestCreated = (request, category) => publish(
-    QUEUES.SERVICE_REQUEST_CREATED,
-    {
-        requestId: request.id,
-        clientId: request.client_id,
-        categoryId: request.category_id,
-        categoryName: category?.name || 'Não informado',
-        title: request.title,
-        address: request.address,
-        preferredGender: request.preferred_gender,
-        scheduledAt: request.scheduled_at || null,
-    }
+  QUEUES.SERVICE_REQUEST_CREATED,
+  {
+    requestId: request.id,
+    clientId: request.client_id,
+    categoryId: request.category_id,
+    categoryName: category?.name || 'Não informado',
+    title: request.title,
+    address: request.address,
+    preferredGender: request.preferred_gender,
+    scheduledAt: request.scheduled_at || null,
+  }
 );
 
 /**
@@ -82,13 +82,13 @@ const publishRequestCreated = (request, category) => publish(
  * }
  */
 const publishRequestAccepted = (request, provider) => publish(
-    QUEUES.SERVICE_REQUEST_ACCEPTED,
-    {
-        requestId: request.id,
-        clientId: request.client_id,
-        providerId: provider.id,
-        providerName: provider.name,
-    }
+  QUEUES.SERVICE_REQUEST_ACCEPTED,
+  {
+    requestId: request.id,
+    clientId: request.client_id,
+    providerId: provider.id,
+    providerName: provider.name,
+  }
 );
 
 /**
@@ -108,16 +108,16 @@ const publishRequestAccepted = (request, provider) => publish(
  * }
  */
 const publishStatusChanged = (request, oldStatus, actor) => publish(
-    QUEUES.SERVICE_REQUEST_STATUS_CHANGED,
-    {
-        requestId: request.id,
-        clientId: request.client_id,
-        providerId: request.provider_id || null,
-        oldStatus,
-        newStatus: request.status,
-        actorId: actor.id,
-        actorRole: actor.role,
-    }
+  QUEUES.SERVICE_REQUEST_STATUS_CHANGED,
+  {
+    requestId: request.id,
+    clientId: request.client_id,
+    providerId: request.provider_id || null,
+    oldStatus,
+    newStatus: request.status,
+    actorId: actor.id,
+    actorRole: actor.role,
+  }
 );
 
 /**
@@ -134,18 +134,18 @@ const publishStatusChanged = (request, oldStatus, actor) => publish(
  * }
  */
 const publishRequestCompleted = (request) => publish(
-    QUEUES.SERVICE_REQUEST_COMPLETED,
-    {
-        requestId: request.id,
-        clientId: request.client_id,
-        providerId: request.provider_id,
-        completedAt: request.completed_at,
-    }
+  QUEUES.SERVICE_REQUEST_COMPLETED,
+  {
+    requestId: request.id,
+    clientId: request.client_id,
+    providerId: request.provider_id,
+    completedAt: request.completed_at,
+  }
 );
 
 module.exports = {
-    publishRequestCreated,
-    publishRequestAccepted,
-    publishStatusChanged,
-    publishRequestCompleted,
+  publishRequestCreated,
+  publishRequestAccepted,
+  publishStatusChanged,
+  publishRequestCompleted,
 };

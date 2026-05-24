@@ -1,6 +1,12 @@
 const { body, query, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
 const { ServiceRequest, User, ServiceCategory, Rating } = require('../models');
+const {
+  publishRequestCreated,
+  publishRequestAccepted,
+  publishStatusChanged,
+  publishRequestCompleted,
+} = require('../messaging/publisher');
 
 // Validações
 
@@ -57,8 +63,8 @@ const createRequest = async (req, res) => {
 
     const full = await ServiceRequest.findByPk(request.id, { include: requestIncludes });
 
-    // Aqui vai entrar o RabbitMQ para notificar os prestadores sobre a nova solicitação
-    // eventEmitter.emit('service_request.created', { requestId: request.id, clientId: req.user.id });
+    // Adição do Rabbit
+    publishRequestCreated(request, category);
 
     return res.status(201).json({
       message: 'Solicitação criada com sucesso.',
@@ -187,9 +193,19 @@ const updateStatus = async (req, res) => {
     await request.save();
 
     const updated = await ServiceRequest.findByPk(request.id, { include: requestIncludes });
+    
+    const oldStatus = request.status; 
 
-    // Aqui vai entrar o RabbitMQ para notificar cliente e prestador sobre a mudança de status
-    // eventEmitter.emit('service_request.status_changed', { requestId: request.id, status, actorId: req.user.id });
+    // Adição do Rabbit
+    publishStatusChanged(request, oldStatus, req.user);
+
+    // Publica eventos especializados conforme o novo status
+    if (status === 'accepted') {
+      publishRequestAccepted(request, req.user);
+    }
+    if (status === 'completed') {
+      publishRequestCompleted(request);
+    }
 
     return res.json({
       message: `Status atualizado para "${status}".`,

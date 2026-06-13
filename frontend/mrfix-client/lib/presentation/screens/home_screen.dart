@@ -202,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Apenas prestadoras femininas',
+                          Text('Apenas prestadoras mulheres',
                             style: TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w700,
                               color: _femaleOnly

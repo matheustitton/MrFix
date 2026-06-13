@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Marido de Aluguel',
+                      Text('MisterFix',
                         style: TextStyle(
                           fontSize: 24, fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,

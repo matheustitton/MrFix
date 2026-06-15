@@ -124,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Gênero
+                //────────── Gênero ───────────────────────────────────────────────────────────────
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -176,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
 
-                // Error
+                // ────── Error ────────────────────────────────────────────────────────────────
                 Consumer<AuthProvider>(
                   builder: (_, auth, __) => auth.error != null
                       ? Container(

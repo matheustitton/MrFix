@@ -153,7 +153,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
 
-                  // Tipo de serviço
+                  //────────────── Tipo de serviço ────────────────────────────────────────────
                   _SectionLabel(
                     label: 'Tipo de Serviço',
                     icon: Icons.category_rounded,
@@ -184,7 +184,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                   ),
                   const SizedBox(height: 24),
 
-                  // Detalhes
+                  // ────── Detalhes ────────────────────────────────────────────────────────
                   _SectionLabel(
                     label: 'Detalhes do problema',
                     icon: Icons.edit_note_rounded,
@@ -201,7 +201,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                   ),
                   const SizedBox(height: 24),
 
-                  // Endereço
+                  // ────── Endereço ────────────────────────────────────────────────────────
                   _SectionLabel(
                     label: 'Endereço do Serviço',
                     icon: Icons.location_on_rounded,
@@ -219,7 +219,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                   ),
                   const SizedBox(height: 12),
 
-                  // Mapa placeholder
+                  // ────── Mapa placeholder ────────────────────────────────────────────────
                   Container(
                     height: 120,
                     decoration: BoxDecoration(
@@ -270,7 +270,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                   ),
                   const SizedBox(height: 24),
 
-                  // Agendamento
+                  // ────── Agendamento ────────────────────────────────────────────────────────
                   _SectionLabel(
                     label: 'Agendar para...',
                     icon: Icons.calendar_month_rounded,
@@ -284,7 +284,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                   ]),
                   const SizedBox(height: 24),
 
-                  // Atendimento Feminino Toggle
+                  // ────── Atendimento Feminino ────────────────────────────────────────────────
                   GestureDetector(
                     onTap: () => setState(() {
                       _femaleOnly = !_femaleOnly;
@@ -352,7 +352,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                               )),
                           ],
                         )),
-                        // Toggle animado
+                        // ────── Animação para o botão ────────────────────────────────────────────────
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           width: 48, height: 26,
@@ -385,7 +385,7 @@ class _NewRequestScreenState extends State<NewRequestScreen>
                   ),
                   const SizedBox(height: 32),
 
-                  // Botão confirmar
+                  // ────── Botão confirmar ────────────────────────────────────────────────────────
                   Consumer<ServiceRequestProvider>(
                     builder: (_, p, __) => PrimaryButton(
                       label: 'Confirmar Pedido',

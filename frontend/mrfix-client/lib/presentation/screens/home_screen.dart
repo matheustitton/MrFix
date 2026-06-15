@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () => context.read<ServiceRequestProvider>().loadRequests(),
         child: CustomScrollView(
           slivers: [
-            // App Bar
+            // ────── App Bar ──────────────────────────────────────────────────────────────
             SliverAppBar(
               floating: true,
               snap: true,
@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   )),
               ]),
               actions: [
-                // Dark mode toggle
+                //──────── Dark mode toggle ────────────────────────────────────
                 GestureDetector(
                   onTap: theme.toggle,
                   child: AnimatedContainer(
@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           : AppConstants.textSecondaryLight),
                   ),
                 ),
-                // Notification
+                // ────── Notification ──────────────────────────────────────────
                 Stack(children: [
                   Container(
                     width: 36, height: 36,
@@ -120,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                // Saudação
                 Text('Olá, $firstName 👋',
                   style: TextStyle(
                     fontSize: 22, fontWeight: FontWeight.w800,
@@ -139,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   )),
                 const SizedBox(height: 20),
 
-                // Search bar
+                // ────── Search bar ──────────────────────────────────────────
                 Container(
                   height: 48,
                   decoration: BoxDecoration(
@@ -175,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Toggle atendimento feminino
+                // ────── Atendimento feminino ───────────────────────────────────────
                 GestureDetector(
                   onTap: () => setState(() => _femaleOnly = !_femaleOnly),
                   child: AnimatedContainer(
@@ -246,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Categorias
+                // ────── Categorias ──────────────────────────────────────────
                 Consumer<ServiceRequestProvider>(
                   builder: (_, p, __) {
                     if (p.categories.isEmpty) return const SizedBox.shrink();
@@ -274,13 +273,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
 
-                // Minhas solicitações
+                //──────── Minhas solicitações ──────────────────────────────────────
                 SectionHeader(title: 'Meus Pedidos'),
                 const SizedBox(height: 16),
               ]),
             )),
 
-            // Lista de solicitações
+            // ────── Lista de solicitações ──────────────────────────────────────
             Consumer<ServiceRequestProvider>(
               builder: (_, p, __) {
                 if (p.loading && p.requests.isEmpty) {

@@ -22,7 +22,7 @@ class AuthProvider extends ChangeNotifier {
   bool get loading => _loading;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
-  /// Verifica se há token salvo ao iniciar o app
+  //──────────── Verificação token salvo e carregamento do usuário ───────────────────────────────────────────────
   Future<void> checkAuth() async {
     final token = await ApiClient.getToken();
     if (token == null) {

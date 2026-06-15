@@ -1,8 +1,6 @@
 import '../models/models.dart';
 import '../../core/network/api_client.dart';
 
-/// DataSource remoto — única camada que faz chamadas HTTP.
-/// Encapsula todos os endpoints da API MisterFix.
 class RemoteDataSource {
 
   // ── Auth ──────────────────────────────────────────────────────────────────

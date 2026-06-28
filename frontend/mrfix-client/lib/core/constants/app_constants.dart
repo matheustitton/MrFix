@@ -23,6 +23,7 @@ class AppConstants {
   static const Color textPrimaryLight   = Color(0xFF1A1A1A);
   static const Color textSecondaryLight = Color(0xFF757575);
   static const Color borderLight    = Color(0xFFE8E8E8);
+  static const Color border         = Color(0xFFE8E8E8); // alias para borderLight
   static const Color dividerLight   = Color(0xFFF0F0F0);
 
   // Dark
@@ -73,7 +74,6 @@ class AppConstants {
     'female': 'Apenas mulheres',
     'male':   'Apenas homens',
   };
-
   // ── Category Icons ────────────────────────────────────────────────────────
   static const Map<String, IconData> categoryIcons = {
     'bolt':         Icons.bolt_rounded,

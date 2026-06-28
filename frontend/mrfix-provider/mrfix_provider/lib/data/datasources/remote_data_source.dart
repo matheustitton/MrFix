@@ -28,7 +28,7 @@ class RemoteDataSource {
         'name': name,
         'email': email,
         'password': password,
-        'role': 'client',
+        'role': 'provider',
         'gender': gender,
       },
       auth: false,
@@ -69,20 +69,27 @@ class RemoteDataSource {
   // ── Service Requests ──────────────────────────────────────────────────────
 
   Future<List<ServiceRequestModel>> getAvailableRequests() async {
-    final res = await ApiClient.get('/service-requests/available');
+    final res = await ApiClient.get('/service-requests');
     final data = ApiClient.parseResponse(res);
-    return (data['data'] as List)
+    final all = (data['data'] as List)
         .map((e) => ServiceRequestModel.fromJson(e))
         .toList();
+    // O backend já filtra por role: retorna pedidos próprios + pendentes disponíveis.
+    // Aqui separamos os disponíveis (status pending sem provider_id do usuário).
+    return all.where((r) => r.status == 'pending' && r.provider == null).toList();
   }
 
   Future<List<ServiceRequestModel>> getMyRequests({String? status}) async {
     final query = status != null ? '?status=$status' : '';
     final res = await ApiClient.get('/service-requests$query');
     final data = ApiClient.parseResponse(res);
-    return (data['data'] as List)
+    final all = (data['data'] as List)
         .map((e) => ServiceRequestModel.fromJson(e))
         .toList();
+    // O backend devolve pedidos do prestador + pendentes disponíveis.
+    // Aqui mantemos apenas os pedidos já aceitos/em andamento/concluídos/cancelados
+    // pelo próprio prestador (provider != null). Os pendentes ficam em getAvailableRequests.
+    return all.where((r) => r.provider != null || r.status != 'pending').toList();
   }
 
   Future<ServiceRequestModel> getRequest(String id) async {

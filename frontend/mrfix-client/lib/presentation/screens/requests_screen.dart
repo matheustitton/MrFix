@@ -49,7 +49,7 @@ class _RequestsScreenState extends State<RequestsScreen>
             child: const Icon(Icons.home_repair_service_rounded,
               color: Colors.white, size: 20)),
           const SizedBox(width: 10),
-          Text('Marido de Aluguel',
+          Text('MisterFix',
             style: TextStyle(
               fontSize: 18, fontWeight: FontWeight.w800,
               color: isDark

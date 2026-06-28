@@ -73,6 +73,13 @@ class AppConstants {
     'cancelled':   Color(0xFF3D0D0D),
   };
 
+  // ── Gender Labels ─────────────────────────────────────────────────────────
+  static const Map<String, String> genderLabels = {
+    'any':    'Qualquer profissional',
+    'female': 'Apenas mulheres',
+    'male':   'Apenas homens',
+  };
+
   // ── Category Icons ────────────────────────────────────────────────────────
   static const Map<String, IconData> categoryIcons = {
     'bolt':         Icons.bolt_rounded,

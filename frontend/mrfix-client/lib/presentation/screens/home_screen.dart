@@ -46,173 +46,164 @@ class _HomeScreenState extends State<HomeScreen> {
     final firstName = auth.user?.name.split(' ').first ?? 'Cliente';
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // ── Conteúdo principal ──────────────────────────────────────────
-          GestureDetector(
-            onTap: notif.panelOpen ? notif.closePanel : null,
-            child: RefreshIndicator(
-              color: AppConstants.primary,
-              onRefresh: () => context.read<ServiceRequestProvider>().loadRequests(),
-              child: CustomScrollView(
-                slivers: [
-                  // App Bar
-                  SliverAppBar(
-                    floating: true,
-                    snap: true,
-                    backgroundColor: isDark ? AppConstants.surfaceDark : Colors.white,
-                    elevation: 0,
-                    title: Row(children: [
-                      Container(
-                        width: 36, height: 36,
-                        decoration: BoxDecoration(
-                          color: AppConstants.primary,
-                          borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.home_repair_service_rounded,
-                          color: Colors.white, size: 20)),
-                      const SizedBox(width: 10),
-                      Text('MisterFix',
-                        style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? AppConstants.textPrimaryDark
-                              : AppConstants.textPrimaryLight,
-                          letterSpacing: -0.3)),
-                    ]),
-                    actions: [
-                      // Dark mode
-                      GestureDetector(
-                        onTap: theme.toggle,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: 36, height: 36,
-                          margin: const EdgeInsets.only(right: 8),
-                          decoration: BoxDecoration(
-                            color: isDark ? AppConstants.surface2Dark : AppConstants.bgLight,
-                            borderRadius: BorderRadius.circular(10)),
-                          child: Icon(
-                            isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                            size: 18,
-                            color: isDark
-                                ? AppConstants.textSecondaryDark
-                                : AppConstants.textSecondaryLight)),
-                      ),
-                      // Notificações
-                      GestureDetector(
-                        onTap: () {
-                          notif.togglePanel();
-                          if (notif.unreadCount > 0) notif.markAllRead();
-                        },
-                        child: Stack(children: [
-                          Container(
-                            width: 36, height: 36,
-                            margin: const EdgeInsets.only(right: 16),
-                            decoration: BoxDecoration(
-                              color: notif.panelOpen
-                                  ? AppConstants.primary.withOpacity(0.12)
-                                  : (isDark ? AppConstants.surface2Dark : AppConstants.bgLight),
-                              borderRadius: BorderRadius.circular(10)),
-                            child: Icon(
-                              notif.panelOpen
-                                  ? Icons.notifications_rounded
-                                  : Icons.notifications_none_rounded,
-                              size: 20,
-                              color: notif.panelOpen
-                                  ? AppConstants.primary
-                                  : (isDark
-                                      ? AppConstants.textSecondaryDark
-                                      : AppConstants.textSecondaryLight))),
-                          if (notif.unreadCount > 0)
-                            Positioned(
-                              top: 4, right: 18,
-                              child: Container(
-                                width: notif.unreadCount > 9 ? 16 : 14,
-                                height: 14,
-                                decoration: const BoxDecoration(
-                                  color: AppConstants.primary,
-                                  shape: BoxShape.circle),
-                                child: Center(
-                                  child: Text(
-                                    notif.unreadCount > 9 ? '9+' : '${notif.unreadCount}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 8,
-                                      fontWeight: FontWeight.w800))))),
-                        ]),
-                      ),
-                    ],
+      body: RefreshIndicator(
+        color: AppConstants.primary,
+        onRefresh: () => context.read<ServiceRequestProvider>().loadRequests(),
+        child: CustomScrollView(
+          slivers: [
+            // ────── App Bar ──────────────────────────────────────────────────────────────
+            SliverAppBar(
+              floating: true,
+              snap: true,
+              backgroundColor: isDark ? AppConstants.surfaceDark : Colors.white,
+              elevation: 0,
+              title: Row(children: [
+                Container(
+                  width: 36, height: 36,
+                  decoration: BoxDecoration(
+                    color: AppConstants.primary,
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child: const Icon(Icons.home_repair_service_rounded,
+                    color: Colors.white, size: 20)),
+                const SizedBox(width: 10),
+                Text('MisterFix',
+                  style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w800,
+                    color: isDark
+                        ? AppConstants.textPrimaryDark
+                        : AppConstants.textPrimaryLight,
+                    letterSpacing: -0.3,
+                  )),
+              ]),
+              actions: [
+                //──────── Dark mode toggle ────────────────────────────────────
+                GestureDetector(
+                  onTap: theme.toggle,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: 36, height: 36,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppConstants.surface2Dark : AppConstants.bgLight,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                      size: 18,
+                      color: isDark
+                          ? AppConstants.textSecondaryDark
+                          : AppConstants.textSecondaryLight),
+                  ),
+                ),
+                // ────── Notification ──────────────────────────────────────────
+                Stack(children: [
+                  Container(
+                    width: 36, height: 36,
+                    margin: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppConstants.surface2Dark : AppConstants.bgLight,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Icons.notifications_none_rounded,
+                      size: 20,
+                      color: isDark
+                          ? AppConstants.textSecondaryDark
+                          : AppConstants.textSecondaryLight)),
+                  Positioned(top: 6, right: 18,
+                    child: Container(
+                      width: 8, height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppConstants.primary, shape: BoxShape.circle),
+                    )),
+                ]),
+              ],
+            ),
 
                   SliverToBoxAdapter(child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                      Text('Olá, $firstName 👋',
-                        style: TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                          color: isDark
-                              ? AppConstants.textPrimaryDark
-                              : AppConstants.textPrimaryLight)),
-                      const SizedBox(height: 4),
-                      Text('Qual serviço você precisa?',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark
-                              ? AppConstants.textSecondaryDark
-                              : AppConstants.textSecondaryLight)),
-                      const SizedBox(height: 20),
+                Text('Olá, $firstName 👋',
+                  style: TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                    color: isDark
+                        ? AppConstants.textPrimaryDark
+                        : AppConstants.textPrimaryLight,
+                  )),
+                const SizedBox(height: 4),
+                Text('Qual serviço você precisa?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark
+                        ? AppConstants.textSecondaryDark
+                        : AppConstants.textSecondaryLight,
+                  )),
+                const SizedBox(height: 20),
 
-                      // Search bar
-                      Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: isDark ? AppConstants.surface2Dark : AppConstants.bgLight,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: isDark ? AppConstants.borderDark : AppConstants.borderLight)),
-                        child: Row(children: [
-                          const SizedBox(width: 14),
-                          Icon(Icons.search_rounded, size: 20,
-                            color: isDark
-                                ? AppConstants.textSecondaryDark
-                                : AppConstants.textSecondaryLight),
-                          const SizedBox(width: 10),
-                          Expanded(child: Text('Buscar eletricista, pintor...',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark
-                                  ? AppConstants.textSecondaryDark
-                                  : AppConstants.textSecondaryLight))),
-                          Container(
-                            margin: const EdgeInsets.all(6),
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: AppConstants.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8)),
-                            child: const Icon(Icons.tune_rounded,
-                              size: 16, color: AppConstants.primary)),
-                        ]),
+                // ────── Search bar ──────────────────────────────────────────
+                Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppConstants.surface2Dark : AppConstants.bgLight,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isDark ? AppConstants.borderDark : AppConstants.borderLight),
+                  ),
+                  child: Row(children: [
+                    const SizedBox(width: 14),
+                    Icon(Icons.search_rounded, size: 20,
+                      color: isDark
+                          ? AppConstants.textSecondaryDark
+                          : AppConstants.textSecondaryLight),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text('Buscar eletricista, pintor...',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark
+                            ? AppConstants.textSecondaryDark
+                            : AppConstants.textSecondaryLight,
+                      ))),
+                    Container(
+                      margin: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppConstants.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       const SizedBox(height: 16),
 
-                      // Toggle feminino
-                      GestureDetector(
-                        onTap: () => setState(() => _femaleOnly = !_femaleOnly),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: _femaleOnly
-                                ? AppConstants.primary.withOpacity(0.08)
-                                : (isDark ? AppConstants.surface2Dark : AppConstants.bgLight),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: _femaleOnly
-                                  ? AppConstants.primary.withOpacity(0.3)
-                                  : (isDark ? AppConstants.borderDark : AppConstants.borderLight))),
-                          child: Row(children: [
-                            Icon(Icons.shield_rounded, size: 18,
+                // ────── Atendimento feminino ───────────────────────────────────────
+                GestureDetector(
+                  onTap: () => setState(() => _femaleOnly = !_femaleOnly),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: _femaleOnly
+                          ? AppConstants.primary.withOpacity(0.08)
+                          : (isDark ? AppConstants.surface2Dark : AppConstants.bgLight),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: _femaleOnly
+                            ? AppConstants.primary.withOpacity(0.3)
+                            : (isDark ? AppConstants.borderDark : AppConstants.borderLight)),
+                    ),
+                    child: Row(children: [
+                      Icon(Icons.shield_rounded,
+                        size: 18,
+                        color: _femaleOnly
+                            ? AppConstants.primary
+                            : (isDark ? AppConstants.textSecondaryDark : AppConstants.textSecondaryLight)),
+                      const SizedBox(width: 10),
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Apenas prestadoras mulheres',
+                            style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w700,
                               color: _femaleOnly
                                   ? AppConstants.primary
                                   : (isDark
@@ -262,64 +253,49 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Categorias
-                      Consumer<ServiceRequestProvider>(
-                        builder: (_, p, __) {
-                          if (p.categories.isEmpty) return const SizedBox.shrink();
-                          return Column(children: [
-                            SectionHeader(
-                              title: 'Categorias',
-                              actionLabel: 'Ver todas',
-                              onAction: () {}),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              height: 88,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                                itemCount: p.categories.length,
-                                itemBuilder: (ctx, i) =>
-                                    _CategoryItem(category: p.categories[i]),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                          ]);
-                        },
+                // ────── Categorias ──────────────────────────────────────────
+                Consumer<ServiceRequestProvider>(
+                  builder: (_, p, __) {
+                    if (p.categories.isEmpty) return const SizedBox.shrink();
+                    return Column(children: [
+                      SectionHeader(
+                        title: 'Categorias',
+                        actionLabel: 'Ver todas',
+                        onAction: () {},
                       ),
 
-                      SectionHeader(title: 'Meus Pedidos'),
-                      const SizedBox(height: 16),
-                    ]),
-                  )),
+                //──────── Minhas solicitações ──────────────────────────────────────
+                SectionHeader(title: 'Meus Pedidos'),
+                const SizedBox(height: 16),
+              ]),
+            )),
 
-                  Consumer<ServiceRequestProvider>(
-                    builder: (_, p, __) {
-                      if (p.loading && p.requests.isEmpty) {
-                        return const SliverToBoxAdapter(
-                          child: Center(child: Padding(
-                            padding: EdgeInsets.all(40),
-                            child: CircularProgressIndicator(
-                              color: AppConstants.primary))));
-                      }
-                      if (p.requests.isEmpty) {
-                        return SliverToBoxAdapter(child: _EmptyState());
-                      }
-                      return SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (ctx, i) {
-                            final req = p.requests[i];
-                            return Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                              child: TappableCard(
-                                onTap: () {
-                                  p.selectRequest(req);
-                                  Navigator.push(ctx, MaterialPageRoute(
-                                    builder: (_) => RequestDetailScreen(
-                                      requestId: req.id)));
-                                },
-                                child: _RequestCardContent(request: req),
-                              ),
-                            );
+            // ────── Lista de solicitações ──────────────────────────────────────
+            Consumer<ServiceRequestProvider>(
+              builder: (_, p, __) {
+                if (p.loading && p.requests.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(40),
+                        child: CircularProgressIndicator(
+                          color: AppConstants.primary))));
+                }
+                if (p.requests.isEmpty) {
+                  return SliverToBoxAdapter(child: _EmptyState());
+                }
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) {
+                      final req = p.requests[i];
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                        child: TappableCard(
+                          onTap: () {
+                            p.selectRequest(req);
+                            Navigator.push(ctx, MaterialPageRoute(
+                              builder: (_) => RequestDetailScreen(
+                                requestId: req.id)));
                           },
                           childCount: p.requests.length,
                         ),

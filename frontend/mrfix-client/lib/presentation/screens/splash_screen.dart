@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _logoCtrl.forward().then((_) => _textCtrl.forward());
 
-    // Auto check auth after 2.5s
+    // Checagem de autenticação após animação
     Future.delayed(const Duration(milliseconds: 2500), _checkAuth);
   }
 
@@ -84,7 +84,7 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo animado
+                  // ──────── Logo animado ────────────────────────────────────────────────
                   ScaleTransition(
                     scale: _logoScale,
                     child: FadeTransition(
@@ -105,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   const SizedBox(height: 24),
 
-                  // Texto animado
+                  // ──────── Texto animado ────────────────────────────────────────────────
                   SlideTransition(
                     position: _textSlide,
                     child: FadeTransition(
@@ -132,13 +132,13 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
 
-            // Botão e tagline
+            // ──────── Botão e tagline ────────────────────────────────────────────────
             FadeTransition(
               opacity: _btnOpacity,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(32, 0, 32, 48),
                 child: Column(children: [
-                  // Indicadores
+                  // ──────── Indicadores ────────────────────────────────────────────────
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(3, (i) => Container(
@@ -154,7 +154,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   const SizedBox(height: 32),
 
-                  // Botão
+                  // ──────── Botão ────────────────────────────────────────────────
                   GestureDetector(
                     onTap: _checkAuth,
                     child: Container(

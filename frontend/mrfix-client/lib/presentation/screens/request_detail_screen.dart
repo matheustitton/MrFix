@@ -102,7 +102,7 @@ class _RequestDetailScreenState extends State<RequestDetailScreen>
                   color: AppConstants.textSecondaryLight, fontSize: 14)),
               const SizedBox(height: 24),
 
-              // Stars
+              // ──────── Avaliação ─────────────────────────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (i) => GestureDetector(
@@ -280,33 +280,33 @@ class _RequestDetailScreenState extends State<RequestDetailScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
 
-                  // Status card
+                  // ──────────── Status card ────────────────────────────────────────
                   _StatusCard(request: request, isDark: isDark),
                   const SizedBox(height: 16),
 
-                  // Progress steps
+                  // ────── Progress steps ────────────────────────────────────────────────
                   if (!request.isCancelled)
                     _ProgressSteps(status: request.status, isDark: isDark),
                   if (!request.isCancelled) const SizedBox(height: 16),
 
-                  // Info card
+                  // ────── Info card ────────────────────────────────────────────────────
                   _InfoCard(request: request, isDark: isDark),
                   const SizedBox(height: 16),
 
-                  // Provider card
+                  // ────── Provider card ────────────────────────────────────────────────
                   if (request.provider != null) ...[
                     _ProviderCard(provider: request.provider!, isDark: isDark),
                     const SizedBox(height: 16),
                   ],
 
-                  // Polling indicator
+                  // ────── Polling indicator ────────────────────────────────────────────────
                   if (!request.isCompleted && !request.isCancelled) ...[
                     _PollingIndicator(isDark: isDark),
                     const SizedBox(height: 24),
                   ] else
                     const SizedBox(height: 8),
 
-                  // Actions
+                  // ────── Actions ──────────────────────────────────────────────────────────
                   if (request.isPending) ...[
                     PrimaryButton(
                       label: 'Cancelar pedido',

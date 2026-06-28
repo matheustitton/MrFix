@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 const SizedBox(height: 32),
 
-                // Header
+                // ────────── Header ────────────────────────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen>
                               : AppConstants.textSecondaryLight,
                         )),
                     ]),
-                    // Dark mode toggle
+                    // ──────── Dark mode ──────────────────────────────────────────────────────
                     GestureDetector(
                       onTap: theme.toggle,
                       child: AnimatedContainer(
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
                 const SizedBox(height: 32),
 
-                // Tab Sou Cliente / Sou Prestador
+                // ────── Cliente / Prestador ────────────────────────────────────────
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -167,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ])),
                 const SizedBox(height: 8),
 
-                // Preferência de Gênero
+                // ────── Preferência de Gênero ────────────────────────────────────────
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   margin: const EdgeInsets.symmetric(vertical: 8),
@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ]),
                 ),
 
-                // Error
+                // ────── Error ────────────────────────────────────────────────────────
                 Consumer<AuthProvider>(
                   builder: (_, auth, __) => auth.error != null
                     ? Container(
@@ -236,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
                 const SizedBox(height: 16),
 
-                // Divisor
+                // ────── Divisor ────────────────────────────────────────────────────────
                 Row(children: [
                   Expanded(child: Divider(
                     color: isDark ? AppConstants.borderDark : AppConstants.borderLight)),
@@ -254,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ]),
                 const SizedBox(height: 16),
 
-                // Google button
+                // ────── Google button (Não Implementado :<) ────────────────────────────────────────────────
                 _OutlineButton(
                   label: 'Entrar com Google',
                   icon: Icons.g_mobiledata_rounded,

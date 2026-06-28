@@ -86,3 +86,28 @@ class ServiceRequestModel extends ServiceRequestEntity {
       agreedPrice:  json['agreed_price']  != null ? (json['agreed_price'] as num).toDouble() : null,
     );
 }
+// ── AppNotificationModel ───────────────────────────────────────────────────
+class AppNotificationModel extends AppNotificationEntity {
+  const AppNotificationModel({
+    required super.id,
+    required super.title,
+    required super.body,
+    required super.type,
+    super.requestId,
+    required super.read,
+    required super.createdAt,
+  });
+
+  factory AppNotificationModel.fromJson(Map<String, dynamic> json) =>
+    AppNotificationModel(
+      id:        json['id'] ?? '',
+      title:     json['title'] ?? '',
+      body:      json['body'] ?? json['message'] ?? '',
+      type:      json['type'] ?? 'general',
+      requestId: json['request_id'] ?? json['service_request_id'],
+      read:      json['read'] ?? json['is_read'] ?? false,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at']) ?? DateTime.now()
+          : DateTime.now(),
+    );
+}

@@ -1,8 +1,6 @@
 import '../models/models.dart';
 import '../../core/network/api_provider.dart';
 
-/// DataSource remoto — única camada que faz chamadas HTTP.
-/// Encapsula todos os endpoints da API MisterFix.
 class RemoteDataSource {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
@@ -74,8 +72,6 @@ class RemoteDataSource {
     final all = (data['data'] as List)
         .map((e) => ServiceRequestModel.fromJson(e))
         .toList();
-    // O backend já filtra por role: retorna pedidos próprios + pendentes disponíveis.
-    // Aqui separamos os disponíveis (status pending sem provider_id do usuário).
     return all.where((r) => r.status == 'pending' && r.provider == null).toList();
   }
 
@@ -86,35 +82,11 @@ class RemoteDataSource {
     final all = (data['data'] as List)
         .map((e) => ServiceRequestModel.fromJson(e))
         .toList();
-    // O backend devolve pedidos do prestador + pendentes disponíveis.
-    // Aqui mantemos apenas os pedidos já aceitos/em andamento/concluídos/cancelados
-    // pelo próprio prestador (provider != null). Os pendentes ficam em getAvailableRequests.
     return all.where((r) => r.provider != null || r.status != 'pending').toList();
   }
 
   Future<ServiceRequestModel> getRequest(String id) async {
     final res = await ApiClient.get('/service-requests/$id');
-    final data = ApiClient.parseResponse(res);
-    return ServiceRequestModel.fromJson(data['data']);
-  }
-
-  Future<ServiceRequestModel> createRequest({
-    required String categoryId,
-    required String title,
-    required String address,
-    String? description,
-    String preferredGender = 'any',
-    String? scheduledAt,
-  }) async {
-    final body = <String, dynamic>{
-      'category_id': categoryId,
-      'title': title,
-      'address': address,
-      'preferred_gender': preferredGender,
-      if (description != null) 'description': description,
-      if (scheduledAt != null) 'scheduled_at': scheduledAt,
-    };
-    final res = await ApiClient.post('/service-requests', body);
     final data = ApiClient.parseResponse(res);
     return ServiceRequestModel.fromJson(data['data']);
   }
@@ -173,5 +145,31 @@ class RemoteDataSource {
       if (comment != null) 'comment': comment,
     });
     ApiClient.parseResponse(res);
+  }
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+
+  Future<List<AppNotificationModel>> getNotifications() async {
+    try {
+      final res = await ApiClient.get('/notifications');
+      final data = ApiClient.parseResponse(res);
+      return (data['data'] as List)
+          .map((e) => AppNotificationModel.fromJson(e))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> markNotificationRead(String id) async {
+    try {
+      await ApiClient.patch('/notifications/$id/read', {});
+    } catch (_) {}
+  }
+
+  Future<void> markAllNotificationsRead() async {
+    try {
+      await ApiClient.patch('/notifications/read-all', {});
+    } catch (_) {}
   }
 }

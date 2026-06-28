@@ -6,6 +6,7 @@ import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/service_request_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/splash_screen.dart';
+import 'presentation/providers/notification_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,7 @@ class MisterFixProviderApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider(ds)),
         ChangeNotifierProvider(
             create: (_) => ServiceRequestProvider(ds)),
+        ChangeNotifierProvider(create: (_) => NotificationProvider(RemoteDataSource()),),
       ],
       child: Consumer<ThemeProvider>(
         builder: (_, theme, __) => MaterialApp(

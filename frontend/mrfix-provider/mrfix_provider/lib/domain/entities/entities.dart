@@ -100,3 +100,23 @@ class ProviderSpecialtyEntity {
     this.isAvailable = true,
   });
 }
+// ── Notification Entity ───────────────────────────────────────────────────────
+class AppNotificationEntity {
+  final String id;
+  final String title;
+  final String body;
+  final String type;
+  final String? requestId;
+  final bool read;
+  final DateTime createdAt;
+
+  const AppNotificationEntity({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.type,
+    this.requestId,
+    required this.read,
+    required this.createdAt,
+  });
+}

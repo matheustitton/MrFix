@@ -77,3 +77,23 @@ class ServiceRequestEntity {
   bool get isCancelled   => status == 'cancelled';
   bool get canBeCancelled => !isCompleted && !isCancelled;
 }
+// ── Notification Entity ───────────────────────────────────────────────────────
+class AppNotificationEntity {
+  final String id;
+  final String title;
+  final String body;
+  final String type; // 'request_accepted', 'request_started', 'request_completed', 'new_rating'
+  final String? requestId;
+  final bool read;
+  final DateTime createdAt;
+
+  const AppNotificationEntity({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.type,
+    this.requestId,
+    required this.read,
+    required this.createdAt,
+  });
+}

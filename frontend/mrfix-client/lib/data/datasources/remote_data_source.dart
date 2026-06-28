@@ -132,4 +132,29 @@ class RemoteDataSource {
     });
     ApiClient.parseResponse(res);
   }
+  // ── Notifications ─────────────────────────────────────────────────────────
+
+  Future<List<AppNotificationModel>> getNotifications() async {
+    try {
+      final res = await ApiClient.get('/notifications');
+      final data = ApiClient.parseResponse(res);
+      return (data['data'] as List)
+          .map((e) => AppNotificationModel.fromJson(e))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> markNotificationRead(String id) async {
+    try {
+      await ApiClient.patch('/notifications/$id/read', {});
+    } catch (_) {}
+  }
+
+  Future<void> markAllNotificationsRead() async {
+    try {
+      await ApiClient.patch('/notifications/read-all', {});
+    } catch (_) {}
+  }
 }

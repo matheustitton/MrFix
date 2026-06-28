@@ -1,5 +1,5 @@
 import '../models/models.dart';
-import '../../core/network/api_client.dart';
+import '../../core/network/api_provider.dart';
 
 class RemoteDataSource {
 
@@ -26,7 +26,7 @@ class RemoteDataSource {
         'name': name,
         'email': email,
         'password': password,
-        'role': 'client',
+        'role': 'provider',
         'gender': gender,
       },
       auth: false,
@@ -66,38 +66,27 @@ class RemoteDataSource {
 
   // ── Service Requests ──────────────────────────────────────────────────────
 
+  Future<List<ServiceRequestModel>> getAvailableRequests() async {
+    final res = await ApiClient.get('/service-requests');
+    final data = ApiClient.parseResponse(res);
+    final all = (data['data'] as List)
+        .map((e) => ServiceRequestModel.fromJson(e))
+        .toList();
+    return all.where((r) => r.status == 'pending' && r.provider == null).toList();
+  }
+
   Future<List<ServiceRequestModel>> getMyRequests({String? status}) async {
     final query = status != null ? '?status=$status' : '';
     final res = await ApiClient.get('/service-requests$query');
     final data = ApiClient.parseResponse(res);
-    return (data['data'] as List)
+    final all = (data['data'] as List)
         .map((e) => ServiceRequestModel.fromJson(e))
         .toList();
+    return all.where((r) => r.provider != null || r.status != 'pending').toList();
   }
 
   Future<ServiceRequestModel> getRequest(String id) async {
     final res = await ApiClient.get('/service-requests/$id');
-    final data = ApiClient.parseResponse(res);
-    return ServiceRequestModel.fromJson(data['data']);
-  }
-
-  Future<ServiceRequestModel> createRequest({
-    required String categoryId,
-    required String title,
-    required String address,
-    String? description,
-    String preferredGender = 'any',
-    String? scheduledAt,
-  }) async {
-    final body = <String, dynamic>{
-      'category_id': categoryId,
-      'title': title,
-      'address': address,
-      'preferred_gender': preferredGender,
-      if (description != null) 'description': description,
-      if (scheduledAt != null) 'scheduled_at': scheduledAt,
-    };
-    final res = await ApiClient.post('/service-requests', body);
     final data = ApiClient.parseResponse(res);
     return ServiceRequestModel.fromJson(data['data']);
   }
@@ -116,6 +105,33 @@ class RemoteDataSource {
     return ServiceRequestModel.fromJson(data['data']);
   }
 
+  // ── Specialties ───────────────────────────────────────────────────────────
+
+  Future<List<ProviderSpecialtyModel>> getMySpecialties() async {
+    final res = await ApiClient.get('/providers/me/specialties');
+    final data = ApiClient.parseResponse(res);
+    return (data['data'] as List)
+        .map((e) => ProviderSpecialtyModel.fromJson(e))
+        .toList();
+  }
+
+  Future<ProviderSpecialtyModel> addSpecialty({
+    required String categoryId,
+    double? averagePrice,
+    int? experienceYears,
+    String? bio,
+  }) async {
+    final body = <String, dynamic>{
+      'category_id': categoryId,
+      if (averagePrice != null) 'average_price': averagePrice,
+      if (experienceYears != null) 'experience_years': experienceYears,
+      if (bio != null) 'bio': bio,
+    };
+    final res = await ApiClient.post('/providers/specialties', body);
+    final data = ApiClient.parseResponse(res);
+    return ProviderSpecialtyModel.fromJson(data['data']);
+  }
+
   // ── Ratings ───────────────────────────────────────────────────────────────
 
   Future<void> submitRating({
@@ -130,6 +146,7 @@ class RemoteDataSource {
     });
     ApiClient.parseResponse(res);
   }
+
   // ── Notifications ─────────────────────────────────────────────────────────
 
   Future<List<AppNotificationModel>> getNotifications() async {

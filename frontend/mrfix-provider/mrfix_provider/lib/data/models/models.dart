@@ -80,12 +80,51 @@ class ServiceRequestModel extends ServiceRequestEntity {
       client:   json['client']   != null ? UserModel.fromJson(json['client'])   : null,
       provider: json['provider'] != null ? UserModel.fromJson(json['provider']) : null,
       category: json['category'] != null ? ServiceCategoryModel.fromJson(json['category']) : null,
-      scheduledAt:  json['scheduled_at']  != null ? DateTime.tryParse(json['scheduled_at'])  : null,
-      completedAt:  json['completed_at']  != null ? DateTime.tryParse(json['completed_at'])  : null,
-      createdAt:    json['createdAt']      != null ? DateTime.tryParse(json['createdAt']) ?? DateTime.now() : DateTime.now(),
-      agreedPrice:  json['agreed_price']  != null ? (json['agreed_price'] as num).toDouble() : null,
+      scheduledAt: json['scheduled_at'] != null ? DateTime.tryParse(json['scheduled_at']) : null,
+      completedAt: json['completed_at'] != null ? DateTime.tryParse(json['completed_at']) : null,
+      createdAt:   json['createdAt']    != null ? DateTime.tryParse(json['createdAt']) ?? DateTime.now() : DateTime.now(),
+      agreedPrice: json['agreed_price'] != null ? (json['agreed_price'] as num).toDouble() : null,
     );
 }
+
+// ── ProviderSpecialtyModel ─────────────────────────────────────────────────
+class ProviderSpecialtyModel extends ProviderSpecialtyEntity {
+  const ProviderSpecialtyModel({
+    required super.id,
+    required super.categoryId,
+    required super.categoryName,
+    super.category,
+    super.averagePrice,
+    super.experienceYears,
+    super.bio,
+    super.isAvailable,
+  });
+
+  factory ProviderSpecialtyModel.fromJson(Map<String, dynamic> json) =>
+    ProviderSpecialtyModel(
+      id:              json['id'] ?? '',
+      categoryId:      json['category_id'] ?? '',
+      categoryName:    json['category']?['name'] ?? json['category_name'] ?? '',
+      category:        json['category'] != null
+          ? ServiceCategoryModel.fromJson(json['category'])
+          : null,
+      averagePrice:    json['average_price'] != null
+          ? (json['average_price'] as num).toDouble()
+          : null,
+      experienceYears: json['experience_years'] ?? 0,
+      bio:             json['bio'],
+      isAvailable:     json['is_available'] ?? true,
+    );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'category_id': categoryId,
+    'average_price': averagePrice,
+    'experience_years': experienceYears,
+    'bio': bio,
+  };
+}
+
 // ── AppNotificationModel ───────────────────────────────────────────────────
 class AppNotificationModel extends AppNotificationEntity {
   const AppNotificationModel({

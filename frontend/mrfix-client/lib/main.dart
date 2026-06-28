@@ -6,6 +6,7 @@ import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/service_request_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/splash_screen.dart';
+import 'presentation/providers/notification_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,8 @@ class MisterFixApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(dataSource)),
         ChangeNotifierProvider(create: (_) => ServiceRequestProvider(dataSource)),
+        ChangeNotifierProvider(create: (_) => NotificationProvider(RemoteDataSource()),
+),
       ],
       child: Consumer<ThemeProvider>(
         builder: (_, theme, __) => MaterialApp(

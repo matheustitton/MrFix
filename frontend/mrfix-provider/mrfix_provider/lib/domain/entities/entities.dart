@@ -70,19 +70,42 @@ class ServiceRequestEntity {
     this.agreedPrice,
   });
 
-  bool get isPending     => status == 'pending';
-  bool get isAccepted    => status == 'accepted';
-  bool get isInProgress  => status == 'in_progress';
-  bool get isCompleted   => status == 'completed';
-  bool get isCancelled   => status == 'cancelled';
+  bool get isPending      => status == 'pending';
+  bool get isAccepted     => status == 'accepted';
+  bool get isInProgress   => status == 'in_progress';
+  bool get isCompleted    => status == 'completed';
+  bool get isCancelled    => status == 'cancelled';
   bool get canBeCancelled => !isCompleted && !isCancelled;
+}
+
+// ── ProviderSpecialty Entity ──────────────────────────────────────────────────
+class ProviderSpecialtyEntity {
+  final String id;
+  final String categoryId;
+  final String categoryName;
+  final ServiceCategoryEntity? category;
+  final double? averagePrice;
+  final int experienceYears;
+  final String? bio;
+  final bool isAvailable;
+
+  const ProviderSpecialtyEntity({
+    required this.id,
+    required this.categoryId,
+    required this.categoryName,
+    this.category,
+    this.averagePrice,
+    this.experienceYears = 0,
+    this.bio,
+    this.isAvailable = true,
+  });
 }
 // ── Notification Entity ───────────────────────────────────────────────────────
 class AppNotificationEntity {
   final String id;
   final String title;
   final String body;
-  final String type; // 'request_accepted', 'request_started', 'request_completed', 'new_rating'
+  final String type;
   final String? requestId;
   final bool read;
   final DateTime createdAt;

@@ -5,35 +5,40 @@ class AppConstants {
   static const Duration pollingInterval = Duration(seconds: 5);
 
   // ── Light Theme Colors ────────────────────────────────────────────────────
-  static const Color primary        = Color(0xFFC82828);
-  static const Color primaryDark    = Color(0xFF9B1B1B);
-  static const Color primaryLight   = Color(0xFFFF4444);
+  static const Color primary        = Color(0xFF0D4F7A);
+  static const Color primaryDark    = Color(0xFF082E47);
+  static const Color primaryLight   = Color(0xFF1A6FA8);
   static const Color secondary      = Color(0xFF424242);
   static const Color tertiary       = Color(0xFFF5F5F5);
   static const Color accent         = Color(0xFFF4A61E);
   static const Color success        = Color(0xFF2E7D32);
   static const Color successLight   = Color(0xFFE8F5E9);
-  static const Color error          = Color(0xFFC82828);
+  static const Color error          = Color(0xFFDC2626);
   static const Color warning        = Color(0xFFF59E0B);
   static const Color warningLight   = Color(0xFFFFF8E1);
 
   // Light
-  static const Color bgLight        = Color(0xFFF5F5F5);
-  static const Color surfaceLight   = Color(0xFFFFFFFF);
+  static const Color bgLight            = Color(0xFFF5F5F5);
+  static const Color surfaceLight       = Color(0xFFFFFFFF);
   static const Color textPrimaryLight   = Color(0xFF1A1A1A);
   static const Color textSecondaryLight = Color(0xFF757575);
-  static const Color borderLight    = Color(0xFFE8E8E8);
-  static const Color border         = Color(0xFFE8E8E8); // alias para borderLight
-  static const Color dividerLight   = Color(0xFFF0F0F0);
+  static const Color borderLight        = Color(0xFFE8E8E8);
+  static const Color border             = Color(0xFFE8E8E8);
+  static const Color dividerLight       = Color(0xFFF0F0F0);
 
   // Dark
-  static const Color bgDark         = Color(0xFF121212);
-  static const Color surfaceDark    = Color(0xFF1E1E1E);
-  static const Color surface2Dark   = Color(0xFF2A2A2A);
+  static const Color bgDark             = Color(0xFF121212);
+  static const Color surfaceDark        = Color(0xFF1E1E1E);
+  static const Color surface2Dark       = Color(0xFF2A2A2A);
   static const Color textPrimaryDark    = Color(0xFFF5F5F5);
   static const Color textSecondaryDark  = Color(0xFF9E9E9E);
-  static const Color borderDark     = Color(0xFF333333);
-  static const Color dividerDark    = Color(0xFF2A2A2A);
+  static const Color borderDark         = Color(0xFF333333);
+  static const Color dividerDark        = Color(0xFF2A2A2A);
+
+  // Aliases para compatibilidade
+  static const Color background         = Color(0xFFF5F5F5);
+  static const Color textPrimaryL       = Color(0xFF1A1A1A);
+  static const Color textSecondaryL     = Color(0xFF757575);
 
   // ── Status ────────────────────────────────────────────────────────────────
   static const Map<String, String> statusLabels = {
@@ -49,7 +54,7 @@ class AppConstants {
     'accepted':    Color(0xFF1565C0),
     'in_progress': Color(0xFF6A1B9A),
     'completed':   Color(0xFF2E7D32),
-    'cancelled':   Color(0xFFC82828),
+    'cancelled':   Color(0xFFDC2626),
   };
 
   static const Map<String, Color> statusBgColors = {
@@ -74,6 +79,7 @@ class AppConstants {
     'female': 'Apenas mulheres',
     'male':   'Apenas homens',
   };
+
   // ── Category Icons ────────────────────────────────────────────────────────
   static const Map<String, IconData> categoryIcons = {
     'bolt':         Icons.bolt_rounded,
@@ -110,7 +116,7 @@ class AppConstants {
 
   static List<BoxShadow> primaryShadow = [
     BoxShadow(
-      color: const Color(0xFFC82828).withOpacity(0.35),
+      color: const Color(0xFF0D4F7A).withOpacity(0.35),
       blurRadius: 16,
       offset: const Offset(0, 6),
     ),

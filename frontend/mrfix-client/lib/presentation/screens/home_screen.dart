@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/service_request_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/notification_provider.dart';
 import '../../core/constants/app_constants.dart';
 import '../../domain/entities/entities.dart';
 import '../widgets/app_widgets.dart';
@@ -25,12 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
       p.loadCategories();
       p.loadRequests();
       p.startPolling();
+      context.read<NotificationProvider>().startPolling();
     });
   }
 
   @override
   void dispose() {
     context.read<ServiceRequestProvider>().stopPolling();
+    context.read<NotificationProvider>().stopPolling();
     super.dispose();
   }
 
@@ -39,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final auth = context.watch<AuthProvider>();
     final theme = context.watch<ThemeProvider>();
+    final notif = context.watch<NotificationProvider>();
     final firstName = auth.user?.name.split(' ').first ?? 'Cliente';
 
     return Scaffold(
@@ -116,9 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            SliverToBoxAdapter(child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SliverToBoxAdapter(child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
                 Text('Olá, $firstName 👋',
                   style: TextStyle(
@@ -168,11 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: AppConstants.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.tune_rounded,
-                        size: 16, color: AppConstants.primary)),
-                  ]),
-                ),
-                const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                 // ────── Atendimento feminino ───────────────────────────────────────
                 GestureDetector(
@@ -206,44 +206,52 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 13, fontWeight: FontWeight.w700,
                               color: _femaleOnly
                                   ? AppConstants.primary
-                                  : (isDark ? AppConstants.textPrimaryDark : AppConstants.textPrimaryLight),
+                                  : (isDark
+                                      ? AppConstants.textSecondaryDark
+                                      : AppConstants.textSecondaryLight)),
+                            const SizedBox(width: 10),
+                            Expanded(child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Apenas prestadoras mulheres',
+                                  style: TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.w700,
+                                    color: _femaleOnly
+                                        ? AppConstants.primary
+                                        : (isDark
+                                            ? AppConstants.textPrimaryDark
+                                            : AppConstants.textPrimaryLight))),
+                                Text('Maior segurança para você 🔒',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? AppConstants.textSecondaryDark
+                                        : AppConstants.textSecondaryLight)),
+                              ],
                             )),
-                          Text('Maior segurança para você 🔒',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: isDark
-                                  ? AppConstants.textSecondaryDark
-                                  : AppConstants.textSecondaryLight,
-                            )),
-                        ],
-                      )),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        width: 44, height: 24,
-                        decoration: BoxDecoration(
-                          color: _femaleOnly
-                              ? AppConstants.primary
-                              : (isDark ? AppConstants.borderDark : AppConstants.borderLight),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: AnimatedAlign(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          alignment: _femaleOnly
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: Container(
-                            width: 20, height: 20,
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            decoration: const BoxDecoration(
-                              color: Colors.white, shape: BoxShape.circle),
-                          ),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 44, height: 24,
+                              decoration: BoxDecoration(
+                                color: _femaleOnly
+                                    ? AppConstants.primary
+                                    : (isDark ? AppConstants.borderDark : AppConstants.borderLight),
+                                borderRadius: BorderRadius.circular(12)),
+                              child: AnimatedAlign(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                alignment: _femaleOnly
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                                child: Container(
+                                  width: 20, height: 20,
+                                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white, shape: BoxShape.circle)))),
+                          ]),
                         ),
                       ),
-                    ]),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
                 // ────── Categorias ──────────────────────────────────────────
                 Consumer<ServiceRequestProvider>(
@@ -255,23 +263,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         actionLabel: 'Ver todas',
                         onAction: () {},
                       ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 88,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          separatorBuilder: (_, __) => const SizedBox(width: 12),
-                          itemCount: p.categories.length,
-                          itemBuilder: (ctx, i) {
-                            final cat = p.categories[i];
-                            return _CategoryItem(category: cat);
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ]);
-                  },
-                ),
 
                 //──────── Minhas solicitações ──────────────────────────────────────
                 SectionHeader(title: 'Meus Pedidos'),
@@ -306,16 +297,214 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (_) => RequestDetailScreen(
                                 requestId: req.id)));
                           },
-                          child: _RequestCardContent(request: req),
+                          childCount: p.requests.length,
                         ),
                       );
                     },
-                    childCount: p.requests.length,
                   ),
-                );
-              },
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                ],
+              ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ),
+
+          // ── Painel de Notificações ──────────────────────────────────────
+          if (notif.panelOpen)
+            Positioned(
+              top: 0, left: 0, right: 0, bottom: 0,
+              child: GestureDetector(
+                onTap: notif.closePanel,
+                child: Container(color: Colors.black.withOpacity(0.3))),
+            ),
+          if (notif.panelOpen)
+            Positioned(
+              top: kToolbarHeight + MediaQuery.of(context).padding.top - 4,
+              right: 12,
+              width: MediaQuery.of(context).size.width * 0.88,
+              child: _NotificationPanel(isDark: isDark),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Notification Panel ─────────────────────────────────────────────────────
+class _NotificationPanel extends StatelessWidget {
+  final bool isDark;
+  const _NotificationPanel({required this.isDark});
+
+  IconData _iconForType(String type) {
+    switch (type) {
+      case 'request_accepted':  return Icons.check_circle_rounded;
+      case 'request_started':   return Icons.build_rounded;
+      case 'request_completed': return Icons.task_alt_rounded;
+      case 'new_rating':        return Icons.star_rounded;
+      default:                  return Icons.notifications_rounded;
+    }
+  }
+
+  Color _colorForType(String type) {
+    switch (type) {
+      case 'request_accepted':  return const Color(0xFF1565C0);
+      case 'request_started':   return const Color(0xFF6A1B9A);
+      case 'request_completed': return const Color(0xFF2E7D32);
+      case 'new_rating':        return const Color(0xFFF59E0B);
+      default:                  return AppConstants.primary;
+    }
+  }
+
+  String _timeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1)  return 'agora';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}min atrás';
+    if (diff.inHours < 24)   return '${diff.inHours}h atrás';
+    return '${diff.inDays}d atrás';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final notif = context.watch<NotificationProvider>();
+
+    return Material(
+      elevation: 16,
+      borderRadius: BorderRadius.circular(20),
+      color: isDark ? AppConstants.surfaceDark : Colors.white,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.55),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? AppConstants.borderDark : AppConstants.borderLight)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 12, 8),
+              child: Row(children: [
+                const Icon(Icons.notifications_rounded,
+                  color: AppConstants.primary, size: 18),
+                const SizedBox(width: 8),
+                Text('Notificações',
+                  style: TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w800,
+                    color: isDark
+                        ? AppConstants.textPrimaryDark
+                        : AppConstants.textPrimaryLight)),
+                const Spacer(),
+                if (notif.notifications.isNotEmpty)
+                  GestureDetector(
+                    onTap: notif.markAllRead,
+                    child: Text('Marcar todas como lidas',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppConstants.primary.withOpacity(0.8),
+                        fontWeight: FontWeight.w600))),
+              ]),
+            ),
+            Divider(height: 1,
+              color: isDark ? AppConstants.borderDark : AppConstants.borderLight),
+
+            // Lista
+            if (notif.notifications.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(children: [
+                  Icon(Icons.notifications_off_outlined,
+                    size: 40,
+                    color: AppConstants.primary.withOpacity(0.2)),
+                  const SizedBox(height: 12),
+                  Text('Nenhuma notificação',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? AppConstants.textSecondaryDark
+                          : AppConstants.textSecondaryLight)),
+                ]),
+              )
+            else
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1, indent: 56,
+                    color: isDark
+                        ? AppConstants.borderDark
+                        : AppConstants.borderLight),
+                  itemCount: notif.notifications.length,
+                  itemBuilder: (ctx, i) {
+                    final n = notif.notifications[i];
+                    final color = _colorForType(n.type);
+                    return InkWell(
+                      onTap: () {
+                        notif.markRead(n.id);
+                        notif.closePanel();
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                        color: n.read
+                            ? Colors.transparent
+                            : AppConstants.primary.withOpacity(0.04),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 36, height: 36,
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.1),
+                                shape: BoxShape.circle),
+                              child: Icon(_iconForType(n.type),
+                                color: color, size: 18)),
+                            const SizedBox(width: 12),
+                            Expanded(child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(n.title,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: n.read
+                                        ? FontWeight.w500
+                                        : FontWeight.w700,
+                                    color: isDark
+                                        ? AppConstants.textPrimaryDark
+                                        : AppConstants.textPrimaryLight)),
+                                const SizedBox(height: 2),
+                                Text(n.body,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark
+                                        ? AppConstants.textSecondaryDark
+                                        : AppConstants.textSecondaryLight)),
+                                const SizedBox(height: 4),
+                                Text(_timeAgo(n.createdAt),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isDark
+                                        ? AppConstants.textSecondaryDark
+                                        : AppConstants.textSecondaryLight)),
+                              ],
+                            )),
+                            if (!n.read)
+                              Container(
+                                width: 8, height: 8,
+                                margin: const EdgeInsets.only(top: 4),
+                                decoration: const BoxDecoration(
+                                  color: AppConstants.primary,
+                                  shape: BoxShape.circle)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
           ],
         ),
       ),
@@ -364,13 +553,10 @@ class _CategoryItemState extends State<_CategoryItem>
           Container(
             width: 60, height: 60,
             decoration: BoxDecoration(
-              color: isDark
-                  ? AppConstants.surface2Dark
-                  : AppConstants.bgLight,
+              color: isDark ? AppConstants.surface2Dark : AppConstants.bgLight,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isDark ? AppConstants.borderDark : AppConstants.borderLight),
-            ),
+                color: isDark ? AppConstants.borderDark : AppConstants.borderLight)),
             child: Icon(icon, color: AppConstants.primary, size: 26)),
           const SizedBox(height: 6),
           SizedBox(
@@ -383,8 +569,7 @@ class _CategoryItemState extends State<_CategoryItem>
                 fontSize: 10, fontWeight: FontWeight.w500,
                 color: isDark
                     ? AppConstants.textSecondaryDark
-                    : AppConstants.textSecondaryLight,
-              ))),
+                    : AppConstants.textSecondaryLight))),
         ]),
       ),
     );
@@ -406,8 +591,7 @@ class _RequestCardContent extends StatelessWidget {
           width: 40, height: 40,
           decoration: BoxDecoration(
             color: AppConstants.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
+            borderRadius: BorderRadius.circular(12)),
           child: Icon(
             AppConstants.categoryIcons[request.category?.icon]
                 ?? Icons.build_rounded,
@@ -422,15 +606,13 @@ class _RequestCardContent extends StatelessWidget {
                 fontSize: 15, fontWeight: FontWeight.w700,
                 color: isDark
                     ? AppConstants.textPrimaryDark
-                    : AppConstants.textPrimaryLight,
-              )),
+                    : AppConstants.textPrimaryLight)),
             Text(request.provider?.name ?? 'Aguardando prestador',
               style: TextStyle(
                 fontSize: 12,
                 color: isDark
                     ? AppConstants.textSecondaryDark
-                    : AppConstants.textSecondaryLight,
-              )),
+                    : AppConstants.textSecondaryLight)),
           ],
         )),
         StatusBadge(status: request.status),
@@ -452,8 +634,7 @@ class _RequestCardContent extends StatelessWidget {
             fontSize: 12,
             color: isDark
                 ? AppConstants.textSecondaryDark
-                : AppConstants.textSecondaryLight,
-          )),
+                : AppConstants.textSecondaryLight)),
         const SizedBox(width: 16),
         Icon(Icons.location_on_rounded, size: 13,
           color: isDark
@@ -466,8 +647,7 @@ class _RequestCardContent extends StatelessWidget {
             fontSize: 12,
             color: isDark
                 ? AppConstants.textSecondaryDark
-                : AppConstants.textSecondaryLight,
-          ))),
+                : AppConstants.textSecondaryLight))),
       ]),
     ]);
   }
@@ -489,8 +669,7 @@ class _EmptyState extends StatelessWidget {
             fontSize: 16, fontWeight: FontWeight.w600,
             color: isDark
                 ? AppConstants.textSecondaryDark
-                : AppConstants.textSecondaryLight,
-          )),
+                : AppConstants.textSecondaryLight)),
         const SizedBox(height: 8),
         Text('Toque no + para solicitar seu primeiro serviço',
           textAlign: TextAlign.center,
@@ -498,8 +677,7 @@ class _EmptyState extends StatelessWidget {
             fontSize: 13,
             color: isDark
                 ? AppConstants.textSecondaryDark
-                : AppConstants.textSecondaryLight,
-          )),
+                : AppConstants.textSecondaryLight)),
       ]),
     );
   }

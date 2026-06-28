@@ -111,7 +111,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: FadeTransition(
                       opacity: _textOpacity,
                       child: Column(children: [
-                        const Text('Marido de Aluguel',
+                        const Text('MisterFix',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 28,

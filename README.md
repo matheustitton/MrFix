@@ -28,7 +28,11 @@ npm install
 # 2. Configurar ambiente
 cp .env.example .env
 
-# 3. Iniciar servidor (com seed automático)
+# 3. Iniciar Docker com o serviço de mensageria
+
+docker run -d --name misterfix-rabbit -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+
+# 4. Iniciar servidor (com seed automático)
 npm run dev
 # ou
 npm start

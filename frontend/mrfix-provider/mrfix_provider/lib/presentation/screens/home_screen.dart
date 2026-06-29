@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/service_request_provider.dart';
 import '../providers/theme_provider.dart';
-import '../providers/notification_provider.dart';
 import '../../core/constants/app_constants.dart';
 import '../../domain/entities/entities.dart';
 import 'login_screen.dart';
@@ -25,38 +24,19 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _tab = TabController(length: 3, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final p = context.read<ServiceRequestProvider>();
-      p.loadAll();
-      p.loadMySpecialties();
-      p.startPolling();
-      context.read<NotificationProvider>().startPolling();
-    });
   }
 
   @override
   void dispose() {
     _tab.dispose();
-    context.read<ServiceRequestProvider>().stopPolling();
-    context.read<NotificationProvider>().stopPolling();
     super.dispose();
   }
 
   void _logout() async {
-    context.read<ServiceRequestProvider>().stopPolling();
-    context.read<NotificationProvider>().stopPolling();
     await context.read<AuthProvider>().logout();
     if (mounted) {
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (_) => const LoginScreen()));
-    }
-  }
-
-  void _goToAddSpecialty() async {
-    final result = await Navigator.push(context,
-        MaterialPageRoute(builder: (_) => const AddSpecialtyScreen()));
-    if (result == true && mounted) {
-      _tab.animateTo(2);
     }
   }
 
@@ -65,442 +45,191 @@ class _HomeScreenState extends State<HomeScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final auth   = context.watch<AuthProvider>();
     final theme  = context.watch<ThemeProvider>();
-    final notif  = context.watch<NotificationProvider>();
 
     return Scaffold(
-      body: Stack(
-        children: [
-
-          // ── Conteúdo principal ────────────────────────────────────────────
-          SafeArea(
+      body: SafeArea(
+        child: Column(children: [
+          // Header
+          Container(
+            decoration: BoxDecoration(
+              color: isDark ? AppConstants.surfaceDark : AppConstants.primary,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8, offset: const Offset(0, 2))
+              ],
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Column(children: [
-
-              // Header
-              Container(
-                decoration: BoxDecoration(
-                  color: isDark ? AppConstants.surfaceDark : AppConstants.primary,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8, offset: const Offset(0, 2))
-                  ],
+              Row(children: [
+                Container(
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12)),
+                  child: Center(
+                    child: Text(
+                      auth.user?.name.isNotEmpty == true
+                          ? auth.user!.name[0].toUpperCase()
+                          : 'P',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18))),
                 ),
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: Column(children: [
-                  Row(children: [
-                    // Avatar inicial
-                    Container(
-                      width: 40, height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12)),
-                      child: Center(
-                        child: Text(
-                          auth.user?.name.isNotEmpty == true
-                              ? auth.user!.name[0].toUpperCase()
-                              : 'P',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18))),
-                    ),
-                    const SizedBox(width: 12),
+                const SizedBox(width: 12),
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Olá, ${auth.user?.name.split(' ').first ?? 'Prestador'} 👷',
+                      style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w800,
+                        color: Colors.white)),
+                    Row(children: [
+                      const Icon(Icons.star_rounded,
+                          size: 13, color: Color(0xFFF4A61E)),
+                      const SizedBox(width: 3),
+                      Text(
+                        '${auth.user?.averageRating.toStringAsFixed(1) ?? '0.0'} '
+                        '(${auth.user?.ratingCount ?? 0} avaliações)',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12)),
+                    ]),
+                  ],
+                )),
+                GestureDetector(
+                  onTap: theme.toggle,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: 36, height: 36,
+                    margin: const EdgeInsets.only(right: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10)),
+                    child: Icon(
+                      isDark
+                          ? Icons.light_mode_rounded
+                          : Icons.dark_mode_rounded,
+                      color: Colors.white, size: 18)),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen())),
+                  child: Container(
+                    width: 36, height: 36,
+                    margin: const EdgeInsets.only(right: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.person_outline_rounded,
+                        color: Colors.white, size: 18)),
+                ),
+                GestureDetector(
+                  onTap: _logout,
+                  child: Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.logout_rounded,
+                        color: Colors.white, size: 18)),
+                ),
+              ]),
+              const SizedBox(height: 16),
 
-                    // Nome + rating
-                    Expanded(child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              // Tabs
+              Consumer<ServiceRequestProvider>(
+                builder: (_, p, __) => TabBar(
+                  controller: _tab,
+                  indicatorColor: Colors.white,
+                  indicatorWeight: 3,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white54,
+                  labelStyle: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 13),
+                  tabs: [
+                    Tab(child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'Olá, ${auth.user?.name.split(' ').first ?? 'Prestador'} 👷',
-                          style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w800,
-                            color: Colors.white)),
-                        Row(children: [
-                          const Icon(Icons.star_rounded,
-                              size: 13, color: Color(0xFFF4A61E)),
-                          const SizedBox(width: 3),
-                          Text(
-                            '${auth.user?.averageRating.toStringAsFixed(1) ?? '0.0'} '
-                            '(${auth.user?.ratingCount ?? 0} avaliações)',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 12)),
-                        ]),
+                        const Text('Disponíveis'),
+                        if (p.newRequestCount > 0) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF4A61E),
+                              borderRadius: BorderRadius.circular(10)),
+                            child: Text('${p.newRequestCount}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white))),
+                        ],
                       ],
                     )),
-
-                    // Dark mode
-                    GestureDetector(
-                      onTap: theme.toggle,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        width: 36, height: 36,
-                        margin: const EdgeInsets.only(right: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(10)),
-                        child: Icon(
-                          isDark
-                              ? Icons.light_mode_rounded
-                              : Icons.dark_mode_rounded,
-                          color: Colors.white, size: 18)),
-                    ),
-
-                    // 🔔 Notificações
-                    GestureDetector(
-                      onTap: () {
-                        notif.togglePanel();
-                        if (notif.unreadCount > 0) notif.markAllRead();
-                      },
-                      child: Stack(children: [
-                        Container(
-                          width: 36, height: 36,
-                          margin: const EdgeInsets.only(right: 4),
-                          decoration: BoxDecoration(
-                            color: notif.panelOpen
-                                ? Colors.white.withOpacity(0.35)
-                                : Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(10)),
-                          child: Icon(
-                            notif.panelOpen
-                                ? Icons.notifications_rounded
-                                : Icons.notifications_none_rounded,
-                            color: Colors.white, size: 18)),
-                        if (notif.unreadCount > 0)
-                          Positioned(
-                            top: 4, right: 6,
-                            child: Container(
-                              width: 14, height: 14,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF4A61E),
-                                shape: BoxShape.circle),
-                              child: Center(
-                                child: Text(
-                                  notif.unreadCount > 9 ? '9+' : '${notif.unreadCount}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.w800))))),
-                      ]),
-                    ),
-
-                    // Perfil
-                    GestureDetector(
-                      onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const ProfileScreen())),
-                      child: Container(
-                        width: 36, height: 36,
-                        margin: const EdgeInsets.only(right: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.person_outline_rounded,
-                            color: Colors.white, size: 18)),
-                    ),
-
-                    // Logout
-                    GestureDetector(
-                      onTap: _logout,
-                      child: Container(
-                        width: 36, height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.logout_rounded,
-                            color: Colors.white, size: 18)),
-                    ),
-                  ]),
-                  const SizedBox(height: 16),
-
-                  // Tabs
-                  Consumer<ServiceRequestProvider>(
-                    builder: (_, p, __) => TabBar(
-                      controller: _tab,
-                      indicatorColor: Colors.white,
-                      indicatorWeight: 3,
-                      indicatorSize: TabBarIndicatorSize.label,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white54,
-                      labelStyle: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 13),
-                      tabs: [
-                        Tab(child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Disponíveis'),
-                            if (p.newRequestCount > 0) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF4A61E),
-                                  borderRadius: BorderRadius.circular(10)),
-                                child: Text('${p.newRequestCount}',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white))),
-                            ],
-                          ],
-                        )),
-                        const Tab(text: 'Meus serviços'),
-                        Tab(child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('Especialidades'),
-                            const SizedBox(width: 6),
-                            Consumer<ServiceRequestProvider>(
-                              builder: (_, p, __) => p.mySpecialties.isEmpty
-                                ? Container(
-                                    width: 8, height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: AppConstants.error,
-                                      shape: BoxShape.circle))
-                                : const SizedBox.shrink(),
-                            ),
-                          ],
-                        )),
+                    const Tab(text: 'Meus serviços'),
+                    Tab(child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Especialidades'),
+                        const SizedBox(width: 6),
+                        Consumer<ServiceRequestProvider>(
+                          builder: (_, p, __) => p.mySpecialties.isEmpty
+                            ? Container(
+                                width: 8, height: 8,
+                                decoration: const BoxDecoration(
+                                  color: AppConstants.error,
+                                  shape: BoxShape.circle))
+                            : const SizedBox.shrink(),
+                        ),
                       ],
-                    ),
-                  ),
-                ]),
-              ),
-
-              // Polling indicator
-              Consumer<ServiceRequestProvider>(
-                builder: (_, p, __) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: (!p.loading && p.availableRequests.isNotEmpty) ? 28 : 0,
-                  color: AppConstants.primary.withOpacity(0.06),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 10, height: 10,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.5,
-                          color: AppConstants.primary.withOpacity(0.6))),
-                      const SizedBox(width: 8),
-                      Text('Atualizando a cada 5s...',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppConstants.primary.withOpacity(0.7))),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Tab views
-              Expanded(
-                child: TabBarView(
-                  controller: _tab,
-                  children: [
-                    _AvailableTab(isDark: isDark),
-                    _MyRequestsTab(isDark: isDark),
-                    _SpecialtiesTab(isDark: isDark, onAdd: _goToAddSpecialty),
+                    )),
                   ],
                 ),
               ),
             ]),
           ),
 
-          // ── Overlay escuro ────────────────────────────────────────────────
-          if (notif.panelOpen)
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: notif.closePanel,
-                child: Container(color: Colors.black.withOpacity(0.3)))),
-
-          // ── Painel de notificações ────────────────────────────────────────
-          if (notif.panelOpen)
-            Positioned(
-              top: kToolbarHeight + MediaQuery.of(context).padding.top + 20,
-              right: 12,
-              width: MediaQuery.of(context).size.width * 0.88,
-              child: _NotificationPanel(isDark: isDark)),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Notification Panel ─────────────────────────────────────────────────────
-class _NotificationPanel extends StatelessWidget {
-  final bool isDark;
-  const _NotificationPanel({required this.isDark});
-
-  IconData _iconForType(String type) {
-    switch (type) {
-      case 'new_request':       return Icons.assignment_rounded;
-      case 'request_cancelled': return Icons.cancel_rounded;
-      case 'new_rating':        return Icons.star_rounded;
-      default:                  return Icons.notifications_rounded;
-    }
-  }
-
-  Color _colorForType(String type) {
-    switch (type) {
-      case 'new_request':       return const Color(0xFF1565C0);
-      case 'request_cancelled': return AppConstants.error;
-      case 'new_rating':        return const Color(0xFFF59E0B);
-      default:                  return AppConstants.primary;
-    }
-  }
-
-  String _timeAgo(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1)  return 'agora';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}min atrás';
-    if (diff.inHours < 24)   return '${diff.inHours}h atrás';
-    return '${diff.inDays}d atrás';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final notif = context.watch<NotificationProvider>();
-
-    return Material(
-      elevation: 16,
-      borderRadius: BorderRadius.circular(20),
-      color: isDark ? AppConstants.surfaceDark : Colors.white,
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.55),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isDark ? AppConstants.borderDark : AppConstants.borderLight)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 12, 8),
-              child: Row(children: [
-                const Icon(Icons.notifications_rounded,
-                  color: AppConstants.primary, size: 18),
-                const SizedBox(width: 8),
-                Text('Notificações',
-                  style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w800,
-                    color: isDark
-                        ? AppConstants.textPrimaryDark
-                        : AppConstants.textPrimaryLight)),
-                const Spacer(),
-                if (notif.notifications.isNotEmpty)
-                  GestureDetector(
-                    onTap: notif.markAllRead,
-                    child: Text('Marcar todas como lidas',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppConstants.primary.withOpacity(0.8),
-                        fontWeight: FontWeight.w600))),
-              ]),
-            ),
-            Divider(height: 1,
-              color: isDark ? AppConstants.borderDark : AppConstants.borderLight),
-
-            // Lista
-            if (notif.notifications.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(children: [
-                  Icon(Icons.notifications_off_outlined,
-                    size: 40,
-                    color: AppConstants.primary.withOpacity(0.2)),
-                  const SizedBox(height: 12),
-                  Text('Nenhuma notificação',
+          // Polling indicator
+          Consumer<ServiceRequestProvider>(
+            builder: (_, p, __) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: (!p.loading && p.availableRequests.isNotEmpty) ? 28 : 0,
+              color: AppConstants.primary.withOpacity(0.06),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 10, height: 10,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: AppConstants.primary.withOpacity(0.6))),
+                  const SizedBox(width: 8),
+                  Text('Atualizando a cada 5s...',
                     style: TextStyle(
-                      fontSize: 13,
-                      color: isDark
-                          ? AppConstants.textSecondaryDark
-                          : AppConstants.textSecondaryLight)),
-                ]),
-              )
-            else
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  separatorBuilder: (_, __) => Divider(
-                    height: 1, indent: 56,
-                    color: isDark
-                        ? AppConstants.borderDark
-                        : AppConstants.borderLight),
-                  itemCount: notif.notifications.length,
-                  itemBuilder: (ctx, i) {
-                    final n = notif.notifications[i];
-                    final color = _colorForType(n.type);
-                    return InkWell(
-                      onTap: () {
-                        notif.markRead(n.id);
-                        notif.closePanel();
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                        color: n.read
-                            ? Colors.transparent
-                            : AppConstants.primary.withOpacity(0.04),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 36, height: 36,
-                              decoration: BoxDecoration(
-                                color: color.withOpacity(0.1),
-                                shape: BoxShape.circle),
-                              child: Icon(_iconForType(n.type),
-                                color: color, size: 18)),
-                            const SizedBox(width: 12),
-                            Expanded(child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(n.title,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: n.read
-                                        ? FontWeight.w500
-                                        : FontWeight.w700,
-                                    color: isDark
-                                        ? AppConstants.textPrimaryDark
-                                        : AppConstants.textPrimaryLight)),
-                                const SizedBox(height: 2),
-                                Text(n.body,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: isDark
-                                        ? AppConstants.textSecondaryDark
-                                        : AppConstants.textSecondaryLight)),
-                                const SizedBox(height: 4),
-                                Text(_timeAgo(n.createdAt),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: isDark
-                                        ? AppConstants.textSecondaryDark
-                                        : AppConstants.textSecondaryLight)),
-                              ],
-                            )),
-                            if (!n.read)
-                              Container(
-                                width: 8, height: 8,
-                                margin: const EdgeInsets.only(top: 4),
-                                decoration: const BoxDecoration(
-                                  color: AppConstants.primary,
-                                  shape: BoxShape.circle)),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                      fontSize: 11,
+                      color: AppConstants.primary.withOpacity(0.7))),
+                ],
               ),
-          ],
-        ),
+            ),
+          ),
+
+          // Tab views
+          Expanded(
+            child: TabBarView(
+              controller: _tab,
+              children: [
+                _AvailableTab(isDark: isDark),
+                _MyRequestsTab(isDark: isDark),
+                _SpecialtiesTab(isDark: isDark),
+              ],
+            ),
+          ),
+        ]),
       ),
     );
   }
@@ -621,8 +350,12 @@ class _MyRequestsTab extends StatelessWidget {
 // ── Specialties Tab ────────────────────────────────────────────────────────
 class _SpecialtiesTab extends StatelessWidget {
   final bool isDark;
-  final VoidCallback onAdd;
-  const _SpecialtiesTab({required this.isDark, required this.onAdd});
+  const _SpecialtiesTab({required this.isDark});
+
+  void _goToAddSpecialty(BuildContext context) async {
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (_) => const AddSpecialtyScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -636,7 +369,7 @@ class _SpecialtiesTab extends StatelessWidget {
           return _EmptyState(
             icon: Icons.build_circle_outlined,
             title: 'Nenhuma especialidade',
-            subtitle: 'Toque no + para adicionar sua primeira especialidade',
+            subtitle: 'Toque no + para adicionar sua primeira especialidade e aparecer nas buscas',
             isDark: isDark,
           );
         }
@@ -691,7 +424,8 @@ class _SpecialtiesTab extends StatelessWidget {
                           const SizedBox(width: 12),
                         ],
                         if (s.experienceYears > 0) ...[
-                          Icon(Icons.work_outline, size: 13,
+                          Icon(Icons.work_outline,
+                              size: 13,
                               color: isDark
                                   ? AppConstants.textSecondaryDark
                                   : AppConstants.textSecondaryLight),
@@ -714,7 +448,8 @@ class _SpecialtiesTab extends StatelessWidget {
                               fontSize: 12,
                               color: isDark
                                   ? AppConstants.textSecondaryDark
-                                  : AppConstants.textSecondaryLight))),
+                                  : AppConstants.textSecondaryLight)),
+                        ),
                     ],
                   )),
                   Container(
@@ -742,7 +477,7 @@ class _SpecialtiesTab extends StatelessWidget {
   }
 }
 
-// ── Shared Widgets ─────────────────────────────────────────────────────────
+// ── Shared widgets ─────────────────────────────────────────────────────────
 
 class _AvailableCard extends StatefulWidget {
   final ServiceRequestEntity request;
@@ -847,13 +582,15 @@ class _AvailableCardState extends State<_AvailableCard>
                             : AppConstants.textPrimaryLight)),
                     const SizedBox(height: 6),
                     Row(children: [
-                      Icon(Icons.location_on_outlined, size: 13,
+                      Icon(Icons.location_on_outlined,
+                        size: 13,
                         color: widget.isDark
                             ? AppConstants.textSecondaryDark
                             : AppConstants.textSecondaryLight),
                       const SizedBox(width: 4),
                       Expanded(child: Text(req.address,
-                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12,
                           color: widget.isDark
@@ -863,7 +600,8 @@ class _AvailableCardState extends State<_AvailableCard>
                     if (req.description != null) ...[
                       const SizedBox(height: 4),
                       Text(req.description!,
-                        maxLines: 2, overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12,
                           color: widget.isDark

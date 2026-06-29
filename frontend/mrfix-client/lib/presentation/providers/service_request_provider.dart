@@ -5,10 +5,12 @@ import '../../domain/entities/entities.dart';
 import '../../core/constants/app_constants.dart';
 
 /// Provider de solicitações de serviço.
+///
 /// Implementa polling assíncrono: a cada [AppConstants.pollingInterval]
 /// busca o status atualizado das solicitações ativas do backend.
 /// Isso garante que o app do cliente reflita mudanças feitas pelo
 /// prestador (aceite, início, conclusão) sem ação manual.
+///
 /// Sprint 4: o polling será substituído por WebSocket ou Firebase FCM.
 class ServiceRequestProvider extends ChangeNotifier {
   final RemoteDataSource _dataSource;
@@ -20,6 +22,7 @@ class ServiceRequestProvider extends ChangeNotifier {
   bool _creating = false;
   String? _error;
   Timer? _pollingTimer;
+  int _updatedRequestCount = 0;
 
   ServiceRequestProvider(this._dataSource);
 
@@ -29,9 +32,11 @@ class ServiceRequestProvider extends ChangeNotifier {
   bool get loading => _loading;
   bool get creating => _creating;
   String? get error => _error;
+  int get updatedRequestCount => _updatedRequestCount;
 
   // ── Polling ───────────────────────────────────────────────────────────────
 
+  /// Inicia o polling quando o app está em primeiro plano
   void startPolling() {
     _pollingTimer?.cancel();
     _pollingTimer = Timer.periodic(AppConstants.pollingInterval, (_) {
@@ -39,16 +44,29 @@ class ServiceRequestProvider extends ChangeNotifier {
     });
   }
 
+  /// Para o polling (ao fazer logout ou fechar o app)
   void stopPolling() {
     _pollingTimer?.cancel();
     _pollingTimer = null;
   }
 
+  /// Refresh silencioso — não exibe loading, apenas atualiza os dados
   Future<void> _silentRefresh() async {
     try {
       final updated = await _dataSource.getMyRequests();
+
+      // Conta pedidos cujo status mudou desde a última atualização
+      final oldStatuses = { for (final r in _requests) r.id: r.status };
+      int changed = 0;
+      for (final r in updated) {
+        final old = oldStatuses[r.id];
+        if (old != null && old != r.status) changed++;
+      }
+      _updatedRequestCount += changed;
+
       _requests = updated;
 
+      // Atualiza a solicitação selecionada se ela mudou de status
       if (_selected != null) {
         final updatedSelected = updated.where((r) => r.id == _selected!.id);
         if (updatedSelected.isNotEmpty) {
@@ -57,8 +75,14 @@ class ServiceRequestProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (_) {
-      // Falha silenciosa...
+      // Falha silenciosa no polling — não interrompe o usuário
     }
+  }
+
+  void clearBadge() {
+    if (_updatedRequestCount == 0) return;
+    _updatedRequestCount = 0;
+    notifyListeners();
   }
 
   // ── Data Loading ──────────────────────────────────────────────────────────

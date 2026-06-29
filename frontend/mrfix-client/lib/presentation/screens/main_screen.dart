@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/service_request_provider.dart';
 import '../providers/theme_provider.dart';
 import '../../core/constants/app_constants.dart';
 import 'home_screen.dart';
 import 'requests_screen.dart';
 import 'new_request_screen.dart';
+import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,7 +20,32 @@ class _MainScreenState extends State<MainScreen> {
   final _screens = const [
     HomeScreen(),
     RequestsScreen(),
+    ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final p = context.read<ServiceRequestProvider>();
+      p.loadRequests();
+      p.loadCategories();
+      p.startPolling();
+    });
+  }
+
+  @override
+  void dispose() {
+    context.read<ServiceRequestProvider>().stopPolling();
+    super.dispose();
+  }
+
+  void _onNavTap(int index) {
+    setState(() => _index = index);
+    if (index == 1) {
+      context.read<ServiceRequestProvider>().clearBadge();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,19 +88,34 @@ class _MainScreenState extends State<MainScreen> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(icon: Icons.home_rounded, label: 'Início',
-                  selected: _index == 0, onTap: () => setState(() => _index = 0)),
-                _NavItem(icon: Icons.receipt_long_rounded, label: 'Pedidos',
-                  selected: _index == 1, onTap: () => setState(() => _index = 1)),
-                const SizedBox(width: 56), // FAB space
-                _NavItem(icon: Icons.chat_bubble_outline_rounded, label: 'Mensagens',
-                  selected: false, onTap: () {}),
-                _NavItem(icon: Icons.person_outline_rounded, label: 'Perfil',
-                  selected: false, onTap: () {}),
-              ],
+            child: Consumer<ServiceRequestProvider>(
+              builder: (_, p, __) => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavItem(
+                    icon: Icons.home_rounded,
+                    label: 'Início',
+                    selected: _index == 0,
+                    onTap: () => _onNavTap(0)),
+                  _NavItem(
+                    icon: Icons.receipt_long_rounded,
+                    label: 'Pedidos',
+                    selected: _index == 1,
+                    badge: _index != 1 ? p.updatedRequestCount : 0,
+                    onTap: () => _onNavTap(1)),
+                  const SizedBox(width: 56),
+                  _NavItem(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    label: 'Mensagens',
+                    selected: false,
+                    onTap: () {}),
+                  _NavItem(
+                    icon: Icons.person_outline_rounded,
+                    label: 'Perfil',
+                    selected: _index == 2,
+                    onTap: () => _onNavTap(2)),
+                ],
+              ),
             ),
           ),
         ),
@@ -87,10 +129,14 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final int badge;
 
   const _NavItem({
-    required this.icon, required this.label,
-    required this.selected, required this.onTap,
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.badge = 0,
   });
 
   @override
@@ -113,13 +159,39 @@ class _NavItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, color: color, size: 22),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(icon, color: color, size: 22),
+              if (badge > 0)
+                Positioned(
+                  top: -5, right: -7,
+                  child: Container(
+                    constraints: const BoxConstraints(
+                        minWidth: 16, minHeight: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: AppConstants.primary,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isDark
+                            ? AppConstants.surfaceDark
+                            : Colors.white,
+                        width: 1.5)),
+                    child: Text(
+                      badge > 99 ? '99+' : '$badge',
+                      style: const TextStyle(
+                        fontSize: 9, fontWeight: FontWeight.w800,
+                        color: Colors.white, height: 1.6),
+                      textAlign: TextAlign.center),
+                  )),
+            ],
+          ),
           const SizedBox(height: 2),
           Text(label,
             style: TextStyle(
               color: color, fontSize: 10,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            )),
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
         ]),
       ),
     );

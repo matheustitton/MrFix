@@ -248,6 +248,12 @@ class ServiceRequestProvider extends ChangeNotifier {
     if (_selected?.id == updated.id) _selected = updated;
   }
 
+  void clearBadge() {
+    if (_newRequestCount == 0) return;
+    _newRequestCount = 0;
+    notifyListeners();
+  }
+
   void selectRequest(ServiceRequestEntity request) {
     _selected = request;
     _newRequestCount = 0;
